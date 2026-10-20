@@ -1,19 +1,23 @@
 ui            = true
-cluster_addr  = "https://127.0.0.1:8201"
-api_addr      = "https://127.0.0.1:8200"
+cluster_addr  = "https://192.168.1.97:8201"
+api_addr      = "https://192.168.1.97:8200"
 
 storage "raft" {
-  path = "/path/to/raft/data"
-  node_id = "raft_node_1"
+  path = "/var/lib/openbao/data"
+  node_id = "LocalHostProut"
 }
 
 listener "tcp" {
-  address       = "127.0.0.1:8200"
-  tls_cert_file = "/path/to/full-chain.pem"
-  tls_key_file  = "/path/to/private-key.pem"
+  address       = "0.0.0.0:8200"
+  tls_cert_file = "/etc/openbao/tls/openbao.crt"
+  tls_key_file  = "/etc/openbao/tls/openbao.key"
 }
 
-telemetry {
-  statsite_address = "127.0.0.1:8125"
-  disable_hostname = true
+# attention à ca, c'est bien que si Tu as un agent de log (Promtail/Loki, Vector, Filebeat, Datadog Agent) installé sur la machine.
+#attention si le disque est plein, ca peut foutre le bordel
+audit "file" "local-file" {
+  description = "Journalisation des requêtes dans un fichier local"
+  options {
+    file_path = "/var/log/openbao/audit.log"
+  }
 }

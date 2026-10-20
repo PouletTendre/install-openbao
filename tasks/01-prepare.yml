@@ -1,0 +1,49 @@
+---
+- name: Create Raft Repository
+  ansible.builtin.file:
+    path: /var/lib/openbao/data
+    state: directory
+    owner: openbao
+    group: openbao
+    mode: '0700'
+
+- name: Create Openbao TLS
+  ansible.builtin.file:
+    path: /etc/openbao/tls
+    state: directory
+    owner: openbao
+    group: openbao
+    mode: '0700'
+
+- name: Create Audit Folder
+  ansible.builtin.file:
+    path: /var/log/openbao
+    state: directory
+    owner: openbao
+    group: openbao
+    mode: '0700'  
+
+- name: Copy public certificate
+  ansible.builtin.copy:
+    src: openbao-fullchain.crt
+    dest: /etc/openbao/tls/openbao.crt
+    owner: openbao
+    group: openbao
+    mode: '0644'
+
+- name: Copy private certificate
+  ansible.builtin.copy:
+    src: openbao.key
+    dest: /etc/openbao/tls/openbao.key
+    owner: openbao
+    group: openbao
+    mode: '0600'
+
+- name: Installer la Root CA dans le magasin de confiance de l'OS
+  ansible.builtin.copy:
+    src: root-ca.crt
+    dest: /usr/local/share/ca-certificates/root_ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Mettre à jour les certificats système

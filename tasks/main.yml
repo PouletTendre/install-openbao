@@ -3,3 +3,9 @@
 # tasks file for openbao
 - name: Install Openbao
   ansible.builtin.import_tasks: 00-install.yml
+
+- name: Prepare Openbao
+  ansible.builtin.import_tasks: 01-prepare.yml
+
+- name: Deploy Openbao
+  ansible.builtin.import_tasks: 02-deploy.yml

@@ -1,0 +1,14 @@
+- name: Déployer le fichier de configuration OpenBao
+  ansible.builtin.template:
+    src: config.hcl.j2
+    dest: /etc/openbao/openbao.hcl
+    owner: openbao
+    group: openbao
+    mode: '0640'
+  notify: Redémarrer OpenBao
+
+- name: Démarrer et activer le service OpenBao
+  ansible.builtin.systemd:
+    name: openbao
+    state: started
+    enabled: true
