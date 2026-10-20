@@ -1,15 +1,15 @@
 ---
-- name: Installer les prérequis pour les dépôts HTTPS et GPG
+- name: Install prerequisites for HTTPS and GPG repositories
   ansible.builtin.apt:
     name:
       - ca-certificates
       - curl
       - gnupg
-      - python3-debian # Requis sur Debian pour le module deb822_repository
+      - python3-debian # Required on Debian for the deb822_repository module
     state: present
     update_cache: true
 
-- name: Ajouter le dépôt officiel OpenBao (format DEB822)
+- name: Add official OpenBao repository (DEB822 format)
   ansible.builtin.deb822_repository:
     name: openbao
     types: [deb]
@@ -20,8 +20,9 @@
     state: present
   register: openbao_repo
 
-- name: Install openbao
+- name: Install OpenBao package
   ansible.builtin.apt:
     name: openbao
     state: present
     update_cache: "{{ openbao_repo.changed }}"
+

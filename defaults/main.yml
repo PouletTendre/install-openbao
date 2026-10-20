@@ -1,3 +1,29 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for openbao
+
+# Network and listener settings
+openbao_listen_address: "0.0.0.0:8200"
+openbao_api_addr: "https://{{ ansible_default_ipv4.address | default('127.0.0.1') }}:8200"
+openbao_cluster_addr: "https://{{ ansible_default_ipv4.address | default('127.0.0.1') }}:8201"
+
+# General and Raft settings
+openbao_ui_enabled: true
+openbao_node_id: "{{ inventory_hostname }}"
+
+# Target server directories and paths
+openbao_data_dir: "/var/lib/openbao/data"
+openbao_tls_dir: "/etc/openbao/tls"
+openbao_log_dir: "/var/log/openbao"
+openbao_config_path: "/etc/openbao/openbao.hcl"
+
+# Source files (in files/)
+openbao_tls_cert_src: "openbao-fullchain.crt"
+openbao_tls_key_src: "openbao.key"
+openbao_ca_cert_src: "root-ca.crt"
+
+# Audit logging
+openbao_audit_enabled: true
+openbao_audit_file_path: "{{ openbao_log_dir }}/audit.log"
+
+

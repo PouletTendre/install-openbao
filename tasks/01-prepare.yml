@@ -1,49 +1,53 @@
 ---
-- name: Create Raft Repository
+- name: Create Raft storage directory
   ansible.builtin.file:
-    path: /var/lib/openbao/data
+    path: "{{ openbao_data_dir }}"
     state: directory
     owner: openbao
     group: openbao
     mode: '0700'
 
-- name: Create Openbao TLS
+- name: Create TLS certificates directory
   ansible.builtin.file:
-    path: /etc/openbao/tls
+    path: "{{ openbao_tls_dir }}"
     state: directory
     owner: openbao
     group: openbao
     mode: '0700'
 
-- name: Create Audit Folder
+- name: Create audit logs directory
   ansible.builtin.file:
-    path: /var/log/openbao
+    path: "{{ openbao_log_dir }}"
     state: directory
     owner: openbao
     group: openbao
-    mode: '0700'  
+    mode: '0700'
 
-- name: Copy public certificate
+- name: Copy public TLS certificate (fullchain)
   ansible.builtin.copy:
-    src: openbao-fullchain.crt
-    dest: /etc/openbao/tls/openbao.crt
+    src: "{{ openbao_tls_cert_src }}"
+    dest: "{{ openbao_tls_dir }}/openbao.crt"
     owner: openbao
     group: openbao
     mode: '0644'
+  notify: Restart OpenBao
 
-- name: Copy private certificate
+- name: Copy private TLS key
   ansible.builtin.copy:
-    src: openbao.key
-    dest: /etc/openbao/tls/openbao.key
+    src: "{{ openbao_tls_key_src }}"
+    dest: "{{ openbao_tls_dir }}/openbao.key"
     owner: openbao
     group: openbao
     mode: '0600'
+  no_log: true
+  notify: Restart OpenBao
 
-- name: Installer la Root CA dans le magasin de confiance de l'OS
+- name: Install Root CA into OS trust store
   ansible.builtin.copy:
-    src: root-ca.crt
+    src: "{{ openbao_ca_cert_src }}"
     dest: /usr/local/share/ca-certificates/root_ca.crt
     owner: root
     group: root
     mode: '0644'
-  notify: Mettre à jour les certificats système
+  notify: Update system CA certificates
+

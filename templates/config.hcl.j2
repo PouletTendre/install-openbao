@@ -1,23 +1,26 @@
-ui            = true
-cluster_addr  = "https://192.168.1.97:8201"
-api_addr      = "https://192.168.1.97:8200"
+ui            = {{ openbao_ui_enabled | bool | lower }}
+cluster_addr  = "{{ openbao_cluster_addr }}"
+api_addr      = "{{ openbao_api_addr }}"
 
 storage "raft" {
-  path = "/var/lib/openbao/data"
-  node_id = "LocalHostProut"
+  path    = "{{ openbao_data_dir }}"
+  node_id = "{{ openbao_node_id }}"
 }
 
 listener "tcp" {
-  address       = "0.0.0.0:8200"
-  tls_cert_file = "/etc/openbao/tls/openbao.crt"
-  tls_key_file  = "/etc/openbao/tls/openbao.key"
+  address       = "{{ openbao_listen_address }}"
+  tls_cert_file = "{{ openbao_tls_dir }}/openbao.crt"
+  tls_key_file  = "{{ openbao_tls_dir }}/openbao.key"
 }
+{% if openbao_audit_enabled | bool %}
 
-# attention à ca, c'est bien que si Tu as un agent de log (Promtail/Loki, Vector, Filebeat, Datadog Agent) installé sur la machine.
-#attention si le disque est plein, ca peut foutre le bordel
+# Warning: Only enable this if you have a log shipping agent (Promtail/Loki, Vector, Filebeat, Datadog Agent) installed on the host.
+# Warning: If the disk becomes full, OpenBao will block all requests if it cannot write to the audit log.
 audit "file" "local-file" {
-  description = "Journalisation des requêtes dans un fichier local"
+  description = "Log requests to a local audit file"
   options {
-    file_path = "/var/log/openbao/audit.log"
+    file_path = "{{ openbao_audit_file_path }}"
   }
 }
+{% endif %}
+
