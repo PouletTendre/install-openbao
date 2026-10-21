@@ -5,6 +5,16 @@ api_addr      = "{{ openbao_api_addr }}"
 storage "raft" {
   path    = "{{ openbao_data_dir }}"
   node_id = "{{ openbao_node_id }}"
+
+  # each node list the OTHERS cluster nodes to make the cluster
+  {% for host in groups['openbao'] %}
+  {% if host != inventory_hostname %}
+  retry_join {
+      leader_api_addr     = "https://{{ hostvars[host]['ansible_host'] }}:8200"
+      leader_ca_cert_file = "{{ openbao_tls_dir }}/openbao.crt"
+    }
+  {% endif %}
+  {% endfor %}
 }
 
 listener "tcp" {
@@ -12,6 +22,7 @@ listener "tcp" {
   tls_cert_file = "{{ openbao_tls_dir }}/openbao.crt"
   tls_key_file  = "{{ openbao_tls_dir }}/openbao.key"
 }
+
 {% if openbao_audit_enabled | bool %}
 
 # Warning: Only enable this if you have a log shipping agent (Promtail/Loki, Vector, Filebeat, Datadog Agent) installed on the host.
